@@ -1,133 +1,420 @@
 import {buildStyles, CircularProgressbar} from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import './App.css';
-import {Chart as ChartJS, registerables as registerablesJS} from 'chart.js'
-import {Chart} from 'react-chartjs-2'
 import {useEffect, useState} from "react";
 import axios from "axios";
 
+import {Chart as ChartJS, registerables as registerablesJS} from 'chart.js'
+import {Chart} from 'react-chartjs-2'
+
 ChartJS.register(...registerablesJS)
 
-
 function App() {
-    const [percentage, setPercentage] = useState(0)
-    const [tab, setTab] = useState(0)
-    const [deets, setDeet] = useState([])
-    const [ch, setCh] = useState([])
-    const [ch1, setCh1] = useState([])
+    const uname_1 = "Yves", uname_2 = "Olas", password_1 = "ILOVEBEULAH", password_2 = "SOMETHING";
+    const [loginDetails, setLoginDetails] = useState({
+        username: "",
+        password: ""
+    })
+    const [w, setW] = useState(0)
+    const [yves, setYves] = useState([])
+    const [olas, setOlas] = useState([])
+    const [opt, setOpt] = useState(0)
 
     useEffect(() => {
-        axios.get('/api/channels/')
-            .then(resp => {
-                console.log(resp.data)
-                setCh(resp.data.filter(i => i.name === "pump_state")[0])
-                setCh1(resp.data.filter(i => i.name === "pump_state_overwrite")[0])
-            })
-        axios.get('/api/water_level')
-            .then(resp => {
-                setDeet(resp.data)
-                setPercentage(resp.data[resp.data.length - 1].value)
-            })
+        const id = setInterval(() =>
+            axios.get('/api/yves/')
+                .then(resp => {
+                    if (resp.data !== yves) {
+                        setYves(resp.data)
+                    }
+                }), 10000)
+        const id_1 = setInterval(() =>
+            axios.get('/api/olas/')
+                .then(resp => {
+                    if (resp.data !== olas) {
+                        setOlas(resp.data)
+                    }
+                }), 10000)
+
+        return () => {
+            clearTimeout(id)
+            clearTimeout(id_1)
+        }
     }, [])
 
+    const logOut = () => {
+        setLoginDetails({
+            username: "",
+            password: ""
+        })
+        setW(0)
+    }
+
+    const subForm = (e) => {
+        e.preventDefault()
+
+        if (loginDetails.username === uname_1 && loginDetails.password === password_1) setW(1)
+        else if (loginDetails.username === uname_2 && loginDetails.password === password_2) setW(2)
+        else setW(5)
+    }
+
     return (
-        <div className="container mx-auto text-center">
-            <div className="uppercase mb-4">
-                <h4>Ezemonye Enoch C.</h4>
-                <h4>17CK022586</h4>
-            </div>
-            <div className="mb-4">
-                <h4 className="uppercase">PUMP <span>{(ch.state || ch1.state) ? "ON" : "OFF"}</span></h4>
-            </div>
+        <>
+            {
+                w === 2 ?
+                    <>
+                        <div className="container mx-auto text-center my-12">
+                            <div className="uppercase mb-4">
+                                <h4>OLUSOLA OLUWABAMIBO</h4>
+                                <h4>17CK022628</h4>
+                                <button className="bg-red-600 text-white px-8 py-4 rounded-xl hover:bg-red-800 duration-300" onClick={logOut}>
+                                    Log Out
+                                </button>
+                            </div>
 
-            <div className="w-1/3 lg:w-1/6 mx-auto mb-4 h-96 flex flex-col justify-center">
-                {
-                    tab === 0 ?
-                        <CircularProgressbar
-                            value={percentage}
-                            text={`${percentage}%`}
-                            styles={buildStyles({
-                                pathColor: `rgba(62, 152, 199, ${percentage / 100})`,
-                            })}
-                        />
-                        :
-                        <Chart
-                            type={'line'}
-                            data={{
-                                labels: deets.map(d => Intl.DateTimeFormat(navigator.language, {
-                                    hour: 'numeric',
-                                    minute: 'numeric'
-                                }).format(d.created_at)),
-                                datasets: [
+                            <div className="w-1/2 mx-auto mb-4 h-f flex flex-col justify-center">
+                                {
+                                    opt === 0 ?
+                                        <section className="flex flex-row">
+                                            <div className={'mx-4'}>
+                                                <h4 className='font-extrabold text-2xl'>ROOM TEMP</h4>
+                                                <CircularProgressbar
+                                                    value={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].temp}
+                                                    text={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].temp + "°C"}
+                                                    styles={buildStyles({
+                                                        pathColor: `rgba(62, 152, 199, ${olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].temp})`,
+                                                    })}
+                                                />
+                                            </div>
+                                            <div className={'mx-4'}>
+                                                <h4 className='font-extrabold text-2xl'>AIR QUALITY</h4>
+                                                <CircularProgressbar
+                                                    value={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].air_q}
+                                                    text={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].air_q}
+                                                    styles={buildStyles({
+                                                        pathColor: `rgba(62, 152, 199, ${olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].pulse_rate})`,
+                                                    })}
+                                                />
+                                            </div>
+                                            <div className={'mx-4'}>
+                                                <h4 className='font-extrabold text-xl'>HUMIDITY</h4>
+                                                <CircularProgressbar
+                                                    value={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].hum}
+                                                    text={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].hum}
+                                                    styles={buildStyles({
+                                                        pathColor: `rgba(62, 152, 199, ${olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].blood_oxygen})`,
+                                                    })}
+                                                />
+                                            </div>
+                                        </section>
+                                        : opt === 1 ?
+                                            <>
+                                                <Chart
+                                                    type={'line'}
+                                                    data={{
+                                                        labels: olas.map(d => Intl.DateTimeFormat(navigator.language, {
+                                                            weekday: 'long',
+                                                            month: 'short',
+                                                            day: 'numeric'
+                                                        }).format(d.time)),
+                                                        datasets: [
+                                                            {
+                                                                // yAxisID: 'power',
+                                                                label: 'Temperature',
+                                                                backgroundColor: 'rgb(234,88,12)',
+                                                                borderColor: 'rgb(234,88,12)',
+                                                                data: olas.map(d => d.temp),
+                                                                lineTension: 0.4,
+                                                            },
+                                                            {
+                                                                // yAxisID: 'current',
+                                                                label: 'Blood Oxygen',
+                                                                backgroundColor: 'rgb(0,104,16)',
+                                                                borderColor: 'rgb(0,104,16)',
+                                                                data: olas.map(d => d.air_q),
+                                                                lineTension: 0.4,
+                                                            },
+                                                            {
+                                                                // yAxisID: 'voltage',
+                                                                label: 'Pulse Rate',
+                                                                backgroundColor: 'rgb(185 28 28)',
+                                                                borderColor: 'rgb(185 28 28)',
+                                                                data: olas.map(d => d.hum),
+                                                                lineTension: 0.4,
+                                                            }
+                                                        ]
+                                                    }}
+                                                    options={{
+                                                        bezierCurve: true,
+                                                        maintainAspectRatio: false,
+                                                        scales: {
+                                                            y1: {
+                                                                display: true,
+                                                                ticks: {display: false},
+                                                                gridLines: {drawBorder: false},
+                                                                position: 'left',
+                                                            },
+                                                            y2: {
+                                                                display: true,
+                                                                ticks: {display: false},
+                                                                gridLines: {drawBorder: false},
+                                                                position: 'right',
+                                                            },
+                                                            y3: {
+                                                                display: true,
+                                                                ticks: {display: false},
+                                                                gridLines: {drawBorder: false},
+                                                                position: 'right',
+                                                            }
+                                                        },
+                                                        plugins: {
+                                                            legend: {
+                                                                display: true,
+                                                                position: 'bottom'
+                                                            },
+                                                        },
+                                                    }}
+                                                />
+                                            </>
+                                            :
+                                            <>
+                                                <table className="table-auto">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Room Temperature °C</th>
+                                                        <th>Air Quality</th>
+                                                        <th>Humidity</th>
+                                                        <th>Time</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody className={'text-left'}>
+                                                    {
+                                                        olas.map((i, k) =>
+                                                            <tr key={k}>
+                                                                <td>{i === undefined ? null : i.temp}</td>
+                                                                <td>{i === undefined ? null : i.air_q}</td>
+                                                                <td>{i === undefined ? null : i.hum}</td>
+                                                                <td>{i === undefined ? null : new Date(i.created_at * 1).toGMTString()}</td>
+                                                            </tr>)
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            </>
+                                }
+                            </div>
+
+                            <div className="my-4">
+                                <div className="mx-auto border w-fit flex flex-row">
+                                    <h5 onClick={() => setOpt(0)}
+                                        className={'py-4 px-8 duration-500 cursor-pointer ' + (opt === 0 ? "bg-blue-400 text-white" : null)}>CURRENT</h5>
+                                    <h5 onClick={() => setOpt(1)}
+                                        className={'py-4 px-8 duration-500 cursor-pointer ' + (opt === 1 ? "bg-blue-400 text-white" : null)}>CHART</h5>
+                                    <h5 onClick={() => setOpt(2)}
+                                        className={'py-4 px-8 duration-500 cursor-pointer ' + (opt === 2 ? "bg-blue-400 text-white" : null)}>TABLE</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                    : w === 1 ?
+                        <>
+                            <div className="container mx-auto text-center my-12">
+                                <div className="uppercase mb-4">
+                                    <h4>Wilcox Yvette</h4>
+                                    <h4>17CK022646</h4>
+                                    <button className="bg-red-600 text-white px-8 py-4 rounded-xl hover:bg-red-800 duration-300" onClick={logOut}>
+                                        Log Out
+                                    </button>
+                                </div>
+
+                                <div className="w-1/2 mx-auto mb-4 h-f flex flex-col justify-center overflow-y-scroll">
                                     {
-                                        // yAxisID: 'power',
-                                        label: 'Water Level',
-                                        backgroundColor: 'rgb(12,175,234)',
-                                        borderColor: 'rgb(12,175,234)',
-                                        data: deets.map(d => d.value),
-                                        lineTension: 0.4,
+                                        opt === 0 ?
+                                            <section className="flex flex-row">
+                                                <div className={'mx-4'}>
+                                                    <h4 className='font-extrabold text-2xl'>{yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].temp} °C</h4>
+                                                    <CircularProgressbar
+                                                        value={yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].temp}
+                                                        text={'°C'}
+                                                        styles={buildStyles({
+                                                            pathColor: `rgba(62, 152, 199, ${yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].temp})`,
+                                                        })}
+                                                    />
+                                                </div>
+                                                <div className={'mx-4'}>
+                                                    <h4 className='font-extrabold text-2xl'>Pulse rate</h4>
+                                                    <CircularProgressbar
+                                                        value={yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].pulse_rate}
+                                                        text={yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].pulse_rate}
+                                                        styles={buildStyles({
+                                                            pathColor: `rgba(62, 152, 199, ${yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].pulse_rate})`,
+                                                        })}
+                                                    />
+                                                </div>
+                                                <div className={'mx-4'}>
+                                                    <h4 className='font-extrabold text-xl'>Blood Oxygen</h4>
+                                                    <CircularProgressbar
+                                                        value={yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].blood_oxygen}
+                                                        text={yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].blood_oxygen}
+                                                        styles={buildStyles({
+                                                            pathColor: `rgba(62, 152, 199, ${yves[yves.length - 1] === undefined ? null : yves[yves.length - 1].blood_oxygen})`,
+                                                        })}
+                                                    />
+                                                </div>
+                                            </section>
+                                            : opt === 1 ?
+                                                <>
+                                                    <Chart
+                                                        type={'line'}
+                                                        data={{
+                                                            labels: yves.map(d => Intl.DateTimeFormat(navigator.language, {
+                                                                weekday: 'long',
+                                                                month: 'short',
+                                                                day: 'numeric'
+                                                            }).format(d.time)),
+                                                            datasets: [
+                                                                {
+                                                                    // yAxisID: 'power',
+                                                                    label: 'Temperature',
+                                                                    backgroundColor: 'rgb(234,88,12)',
+                                                                    borderColor: 'rgb(234,88,12)',
+                                                                    data: yves.map(d => d.temp),
+                                                                    lineTension: 0.4,
+                                                                },
+                                                                {
+                                                                    // yAxisID: 'current',
+                                                                    label: 'Blood Oxygen',
+                                                                    backgroundColor: 'rgb(0,104,16)',
+                                                                    borderColor: 'rgb(0,104,16)',
+                                                                    data: yves.map(d => d.blood_oxygen),
+                                                                    lineTension: 0.4,
+                                                                },
+                                                                {
+                                                                    // yAxisID: 'voltage',
+                                                                    label: 'Pulse Rate',
+                                                                    backgroundColor: 'rgb(185 28 28)',
+                                                                    borderColor: 'rgb(185 28 28)',
+                                                                    data: yves.map(d => d.pulse_rate),
+                                                                    lineTension: 0.4,
+                                                                }
+                                                            ]
+                                                        }}
+                                                        options={{
+                                                            bezierCurve: true,
+                                                            maintainAspectRatio: false,
+                                                            scales: {
+                                                                y1: {
+                                                                    display: true,
+                                                                    ticks: {display: false},
+                                                                    gridLines: {drawBorder: false},
+                                                                    position: 'left',
+                                                                },
+                                                                y2: {
+                                                                    display: true,
+                                                                    ticks: {display: false},
+                                                                    gridLines: {drawBorder: false},
+                                                                    position: 'right',
+                                                                },
+                                                                y3: {
+                                                                    display: true,
+                                                                    ticks: {display: false},
+                                                                    gridLines: {drawBorder: false},
+                                                                    position: 'right',
+                                                                }
+                                                            },
+                                                            plugins: {
+                                                                legend: {
+                                                                    display: true,
+                                                                    position: 'bottom'
+                                                                },
+                                                            },
+                                                        }}
+                                                    />
+                                                </>
+                                                :
+                                                <>
+                                                    <table className="table-auto mt-24">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>Temperature °C</th>
+                                                            <th>Blood Oxygen</th>
+                                                            <th>Pulse Rate</th>
+                                                            <th>Time</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody className={'text-left'}>
+                                                        {
+                                                            yves.map((i, k) =>
+                                                                <tr key={k}>
+                                                                    <td>{i === undefined ? null : i.temp}</td>
+                                                                    <td>{i === undefined ? null : i.blood_oxygen}</td>
+                                                                    <td>{i === undefined ? null : i.pulse_rate}</td>
+                                                                    <td>{i === undefined ? null : new Date(i.created_at * 1).toGMTString()}</td>
+                                                                </tr>)
+                                                        }
+                                                        </tbody>
+                                                    </table>
+                                                </>
                                     }
-                                ]
-                            }}
-                            options={{
-                                bezierCurve: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y1: {
-                                        display: false,
-                                        ticks: {display: false},
-                                        gridLines: {drawBorder: false},
-                                        position: 'left',
-                                    }
-                                },
-                                plugins: {
-                                    legend: {
-                                        display: false,
-                                        position: 'bottom'
-                                    },
-                                },
-                            }}
-                        />
-                }
-            </div>
+                                </div>
 
-            <button onClick={(e) => {
-                e.preventDefault()
-                console.log(1)
-                const params = new URLSearchParams()
-                params.append('id', ch1._id)
-                params.append('name', ch1.name)
-                params.append('value', ch1.value)
-                params.append('state', (!ch1.state).toString())
-
-                const config = {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                }
-
-
-                axios.patch('/api/channels/', params, config)
-                    .then(resp => {
-                        console.log(resp.data)
-                        setCh(resp.data.filter(i => i.name === "pump_state")[0])
-                        setCh1(resp.data.filter(i => i.name === "pump_state_overwrite")[0])
-                    })
-                    .catch((e) => console.log(e))
-            }}
-                    className={'bg-blue-400 duration-500 text-white px-4 py-2 rounded hover:bg-blue-600 duration-200 ' + (ch1.state && "bg-red-600 hover:bg-red-800")}>
-                Override Pump
-            </button>
-
-            <div className="my-4">
-                <div className="mx-auto border w-fit flex flex-row">
-                    <h5 onClick={() => setTab(0)}
-                        className={'py-4 px-8 duration-500 cursor-pointer ' + (tab === 0 ? "bg-blue-400 text-white" : null)}>LEVEL</h5>
-                    <h5 onClick={() => setTab(1)}
-                        className={'py-4 px-8 duration-500 cursor-pointer ' + (tab === 1 ? "bg-blue-400 text-white" : null)}>HISTORY</h5>
-                </div>
-            </div>
-        </div>
+                                <div className="my-4">
+                                    <div className="mx-auto border w-fit flex flex-row">
+                                        <h5 onClick={() => setOpt(0)}
+                                            className={'py-4 px-8 duration-500 cursor-pointer ' + (opt === 0 ? "bg-blue-400 text-white" : null)}>CURRENT</h5>
+                                        <h5 onClick={() => setOpt(1)}
+                                            className={'py-4 px-8 duration-500 cursor-pointer ' + (opt === 1 ? "bg-blue-400 text-white" : null)}>CHART</h5>
+                                        <h5 onClick={() => setOpt(2)}
+                                            className={'py-4 px-8 duration-500 cursor-pointer ' + (opt === 2 ? "bg-blue-400 text-white" : null)}>TABLE</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                        :
+                        <section className={'w-100 h-screen flex justify-center items-center'}>
+                            <div className="w-full max-w-xs">
+                                <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+                                      onSubmit={(e) => subForm(e)}>
+                                    <div className="mb-4">
+                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                                            Username
+                                        </label>
+                                        <input
+                                            onChange={(e) => setLoginDetails({
+                                                ...loginDetails,
+                                                ["username"]: e.target.value
+                                            })}
+                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                            id="username" type="text" placeholder="Username"/>
+                                    </div>
+                                    <div className="mb-6">
+                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                                            Password
+                                        </label>
+                                        <input
+                                            onChange={(e) => setLoginDetails({
+                                                ...loginDetails,
+                                                ["password"]: e.target.value
+                                            })}
+                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                            id="password" type="password" placeholder="******************"/>
+                                    </div>
+                                    {w === 5 && <div className="text-red-500 text-xs pb-4">Wrong User Details</div>}
+                                    <div className="flex items-center justify-between">
+                                        <input
+                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                            type="submit" value='Sign In'/>
+                                        <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+                                           href="#">
+                                            Forgot Password?
+                                        </a>
+                                    </div>
+                                </form>
+                                <p className="text-center text-gray-500 text-xs">
+                                </p>
+                            </div>
+                        </section>
+            }
+        </>
     );
 }
 

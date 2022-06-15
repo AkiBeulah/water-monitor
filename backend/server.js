@@ -11,11 +11,11 @@ app.use(bodyParser.urlencoded({
 app.use(cors());
 
 // API
-const water_level = require('./api/waterLevel');
-const channels = require('./api/channels')
+const yves = require('./api/yves');
+const olas = require('./api/olas')
 
-app.use('/api/channels', channels)
-app.use('/api/water_level', water_level);
+app.use('/api/yves', yves)
+app.use('/api/olas', olas);
 
 app.use(express.static(path.join(__dirname, '../build')))
 app.get('*', (req, res) => {
