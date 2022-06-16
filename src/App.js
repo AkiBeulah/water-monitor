@@ -65,7 +65,7 @@ function App() {
                     <>
                         <div className="container mx-auto text-center my-12">
                             <div className="uppercase mb-4">
-                                <h4>OLUSOLA OLUWABAMIBO</h4>
+                                <h4>OLUSHOLA OLABAMIBO</h4>
                                 <h4>17CK022628</h4>
                                 <button className="bg-red-600 text-white px-8 py-4 rounded-xl hover:bg-red-800 duration-300" onClick={logOut}>
                                     Log Out
@@ -77,7 +77,7 @@ function App() {
                                     opt === 0 ?
                                         <section className="flex flex-row">
                                             <div className={'mx-4'}>
-                                                <h4 className='font-extrabold text-2xl'>ROOM TEMP</h4>
+                                                <h4 className='font-extrabold text-2xl'>TEMPERATURE</h4>
                                                 <CircularProgressbar
                                                     value={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].temp}
                                                     text={olas[olas.length - 1] === undefined ? null : olas[olas.length - 1].temp + "°C"}
