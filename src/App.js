@@ -37,8 +37,8 @@ function App() {
                 }), 10000)
 
         return () => {
-            clearTimeout(id)
-            clearTimeout(id_1)
+            clearInterval(id)
+            clearInterval(id_1)
         }
     }, [])
 
