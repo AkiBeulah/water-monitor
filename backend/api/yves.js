@@ -5,7 +5,7 @@ const Yves = require('../models/yve');
 
 router.get('/', (req, res) => {
     console.log('get yves loading...')
-    Yves.Deet.find({"createdAt":{$gt:new Date(Date.now() - 24*60*60 * 1000)}})
+    Yves.find({"createdAt":{$gt:new Date(Date.now() - 24*60*60 * 1000)}})
         .then(resp => res.json(resp))
         .catch(err => console.log(err))
 })

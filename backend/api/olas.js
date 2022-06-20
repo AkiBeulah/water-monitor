@@ -5,7 +5,7 @@ const Ola = require('../models/ola');
 
 router.get('/', (req, res) => {
     console.log('get olas loading...')
-    Ola.Deet.find({"createdAt":{$gt:new Date(Date.now() - 24*60*60 * 1000)}})
+    Ola.find({"createdAt":{$gt:new Date(Date.now() - 24*60*60 * 1000)}})
         .then(resp => res.json(resp))
         .catch(err => console.log(err))
 })
