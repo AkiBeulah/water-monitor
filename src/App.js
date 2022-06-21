@@ -10,7 +10,7 @@ import {Chart} from 'react-chartjs-2'
 ChartJS.register(...registerablesJS)
 
 function App() {
-    const uname_1 = "Yves", uname_2 = "Olas", password_1 = "ILOVEBEULAH", password_2 = "SOMETHING";
+    const uname_1 = "Yves", uname_2 = "Olas", password_1 = "1234POPS", password_2 = "SOMETHING";
     const [loginDetails, setLoginDetails] = useState({
         username: "",
         password: ""
@@ -128,7 +128,7 @@ function App() {
                                                             },
                                                             {
                                                                 // yAxisID: 'current',
-                                                                label: 'Blood Oxygen',
+                                                                label: 'Air Quality',
                                                                 backgroundColor: 'rgb(0,104,16)',
                                                                 borderColor: 'rgb(0,104,16)',
                                                                 data: olas.map(d => d.air_q),
@@ -136,7 +136,7 @@ function App() {
                                                             },
                                                             {
                                                                 // yAxisID: 'voltage',
-                                                                label: 'Pulse Rate',
+                                                                label: 'Humidity',
                                                                 backgroundColor: 'rgb(185 28 28)',
                                                                 borderColor: 'rgb(185 28 28)',
                                                                 data: olas.map(d => d.hum),
